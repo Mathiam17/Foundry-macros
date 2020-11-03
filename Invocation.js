@@ -8,39 +8,31 @@
 
 /* Variables */
 
-function wait(ms) {
-	return new Promise((r) => setTimeout(r, ms));
-}
-
 let chatMsg = "";
 let chatEnabled = true;
 let mage = "";
 
 let prof = actor.data.data.attributes.prof;
-let hasAvailableUses = false;
 let newResources = duplicate(actor.data.data.resources);
-
-let manaObj = {};
-let mana = actor.data.data.resources.primary;
 let isResting = false;
 let quarterMana = false;
 let regen = null;
 let newManaValue = null;
 
+let manaObj = {};
+let mana = actor.data.data.resources.primary;
+
 let usesObj = {};
 let uses = actor.data.data.resources.secondary;
 
-// Make sure one of your resources are named EXACTLY like ResourceName and ManaName
+// Make sure your resources are named EXACTLY like ResourceName and ManaName
 const UsesName = "Invocation uses";
 const ManaName = "Mana";
 
 // Messages
 const Namespace = "Mathiam Macros | Invocation | ";
-const InvocationMsg = ` is using Invocation and regenerates ${prof} mana`;
-const RestInvocationMsg = ` is using Invocation and regenerates ${
-	prof * 2
-} mana`;
-const errorNoUses = " has no more Invocation uses left.";
+const InvocationMsg = ` is using Invocation and regenerates ${regen} mana`;
+const errorNoUses = " has no Invocation uses left.";
 const errorNoUsesResource = ` has no resource called ${UsesName}`;
 const errorNoManaResource = ` has no resource called ${ManaName}`;
 const errorFullMana = " already has full mana";
@@ -72,11 +64,13 @@ if (actor !== undefined && actor !== null) {
 			return;
 		}
 
+		// Checks if Invocation uses aren't depleted, if so returns a warning
 		if (uses.value === 0) {
 			ui.notifications.warn(`${actor.name} ${errorNoUses}`);
 			return;
 		}
 
+		// Dialog window to select whether invocation is used during short rest
 		new Dialog({
 			title: "Short rest?",
 			content: `
@@ -109,7 +103,6 @@ if (actor !== undefined && actor !== null) {
 	function Invocation(isResting) {
 		// Consume Invocation use section
 
-		hasAvailableUses = true;
 		newResources.secondary.value--;
 		usesObj["data.resources"] = newResources;
 		console.log(
@@ -119,19 +112,19 @@ if (actor !== undefined && actor !== null) {
 
 		// Mana Regen Section
 
+		// Checks if current mana is below one-quarter of max mana
 		if (mana.value < (mana.max * 1) / 4) quarterMana = true;
 
 		if (isResting || quarterMana) {
 			regen = prof * 2;
-			chatMsg = `${actor.name} ${RestInvocationMsg}`;
 			newManaValue = newResources.primary.value + regen;
 			newResources.primary.value = newManaValue;
 		} else {
 			regen = prof;
-			chatMsg = `${actor.name} ${InvocationMsg}`;
 			newManaValue = newResources.primary.value + regen;
 			newResources.primary.value = newManaValue;
 		}
+		chatMsg = `${actor.name} ${InvocationMsg}`;
 
 		manaObj["data.resources"] = newResources;
 		console.log(`${Namespace}${actor.name} regains ${regen} mana`);
