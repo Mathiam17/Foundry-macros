@@ -7,7 +7,7 @@
  */
 
 /* Variables */
-
+TESTING-SIGNING;
 let chatMsg = "";
 let chatEnabled = true;
 let mage = "";
