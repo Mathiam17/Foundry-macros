@@ -7,7 +7,7 @@
  */
 
 /* Variables */
-TESTING-COMMIT-SIGNING;
+
 let chatMsg = "";
 let chatEnabled = true;
 let mage = "";
